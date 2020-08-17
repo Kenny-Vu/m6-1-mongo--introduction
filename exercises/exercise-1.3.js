@@ -8,17 +8,20 @@ const options = {
   useUnifiedTopology: true,
 };
 
-const getCollection = async (dbName) => {
+const getUsers = async (req, res) => {
   const client = await MongoClient(MONGO_URI, options);
 
   await client.connect();
 
-  const db = client.db(dbName);
+  const db = client.db("exercise_1");
 
   const users = await db.collection("users").find().toArray();
-  console.log(users);
+
+  if (users.length > 0) {
+    res.status(200).json(users);
+  } else res.status(404).type("txt").send("🤷‍♂️");
 
   client.close();
 };
 
-getCollection("exercise_1");
+module.exports = { getUsers };
