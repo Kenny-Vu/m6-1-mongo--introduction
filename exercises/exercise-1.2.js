@@ -21,4 +21,4 @@ const getCollection = async (dbName) => {
   client.close();
 };
 
-getCollection("exercise_1");
+getCollection("exercise-1");

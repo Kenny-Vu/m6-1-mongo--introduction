@@ -26,4 +26,4 @@ const dbFunction = async (dbName) => {
   console.log("disconnected!");
 };
 
-dbFunction("exercise_1");
+dbFunction("exercise-1");
