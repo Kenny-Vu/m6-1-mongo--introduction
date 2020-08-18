@@ -67,4 +67,25 @@ const getGreetings = async (req, res) => {
   client.close();
 };
 
-module.exports = { createGreeting, getGreeting, getGreetings };
+const deleteGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options);
+  await client.connect();
+  const db = client.db("exercise-1");
+
+  const { _id } = req.params;
+  // count before deletion
+  const count = await db.collection("greetings").countDocuments();
+  //deletion
+  await db.collection("greetings").findOneAndDelete({ _id });
+  //count after deletion
+  const newCount = await db.collection("greetings").countDocuments();
+  result = await db.collection("greetings").find().toArray();
+  if (newCount === count - 1) {
+    res.status(204).json({ status: 204, data: result });
+  } else {
+    res.status(400).json({ status: 400, data: result });
+  }
+  client.close();
+};
+
+module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting };
