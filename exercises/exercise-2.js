@@ -1,6 +1,7 @@
 const { MongoClient } = require("mongodb");
 
 const assert = require("assert");
+const { start } = require("repl");
 
 require("dotenv").config();
 const { MONGO_URI } = process.env;
@@ -43,4 +44,27 @@ const getGreeting = async (req, res) => {
   });
 };
 
-module.exports = { createGreeting, getGreeting };
+const getGreetings = async (req, res) => {
+  let start = req.query.start ? Number(req.query.start) : 0;
+  let limit = req.query.limit ? Number(req.query.limit) : 25;
+
+  const client = await MongoClient(MONGO_URI, options);
+  await client.connect();
+  const db = client.db("exercise-1");
+
+  try {
+    let result = await db.collection("greetings").find();
+    //if the length of the collection is greater than the limit from the starting point then set limit as the difference between collection length and the starting point of the query
+    if (result.count() < start + limit) {
+      limit = (await result.count()) - start;
+    }
+    result = await result.skip(start).limit(limit).toArray();
+    res.status(200).json({ status: 200, data: result });
+  } catch (err) {
+    console.log(err.stack);
+  }
+
+  client.close();
+};
+
+module.exports = { createGreeting, getGreeting, getGreetings };
