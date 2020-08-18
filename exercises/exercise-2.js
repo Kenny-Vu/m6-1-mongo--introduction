@@ -88,4 +88,38 @@ const deleteGreeting = async (req, res) => {
   client.close();
 };
 
-module.exports = { createGreeting, getGreeting, getGreetings, deleteGreeting };
+const updateGreeting = async (req, res) => {
+  const client = await MongoClient(MONGO_URI, options);
+  await client.connect();
+  const db = client.db("exercise-1");
+  const { _id } = req.params;
+  const { hello } = req.body; // users area only allowed to update the value in the "hello" key
+
+  try {
+    if (!hello) {
+      res
+        .status(400)
+        .json({ status: 400, message: "you can only update the hello key!" });
+      return;
+    }
+    const response = await db
+      .collection("greetings")
+      .updateOne({ _id }, { $set: { hello } });
+    assert.equal(1, response.matchedCount);
+    assert.equal(1, response.modifiedCount);
+    res.status(200).json({ _id });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ status: 500, error: err.stack });
+  }
+
+  client.close();
+};
+
+module.exports = {
+  createGreeting,
+  getGreeting,
+  getGreetings,
+  deleteGreeting,
+  updateGreeting,
+};
